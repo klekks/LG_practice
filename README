@@ -1,3 +1,18 @@
+# LG_practice
+
+Результат учебной практики в LG Electronics.
+
+
+Реализация поддержки OAuth2 client-credentials (https://oauth.net/2/grant-types/client-credentials/)
+
+--- Запрос access token: https://datatracker.ietf.org/doc/html/rfc6749#section-4.4
+
+--- Цикл обновления access token + refresh token: https://datatracker.ietf.org/doc/html/rfc6749#section-6
+
+Созданные файлы: scr/*
+
+================================
+
 This is Spatium Mock Speech Web Service
 
 sudo apt-get install git make cmake gcc g++ \
