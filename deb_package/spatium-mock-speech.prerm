@@ -1,0 +1,10 @@
+#!/bin/sh
+# prerm script for spatium-mock-speech
+
+set -e
+
+if [ -x "/etc/init.d/spatium-mock-speech" ] && [ "$1" = remove ]; then
+    invoke-rc.d --skip-systemd-native spatium-mock-speech stop || exit 1
+fi
+
+exit 0

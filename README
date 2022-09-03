@@ -1,0 +1,29 @@
+This is Spatium Mock Speech Web Service
+
+sudo apt-get install git make cmake gcc g++ \
+  libboost-dev \
+  libboost-system-dev \
+  libboost-thread-dev \
+  libboost-log-dev \
+  libboost-program-options-dev \
+  libgoogle-glog-dev \
+  libgflags-dev \
+  libjsoncpp-dev \
+
+Release build:
+  cmake -H./cmake/ -BRelease
+  cd ./Release && make
+
+Debug build:
+  cmake -H./cmake/ -BDebug -DCMAKE_BUILD_TYPE=Debug
+  cd ./debug && make
+
+Run service:
+  cp ./conf/* ./Release
+  cd ./Release; ./spatium-mock-speech
+
+DEB Package:
+  cd ./Release
+  make package
+
+  sudo apt install --reinstall ./Release/spatium-mock-speech

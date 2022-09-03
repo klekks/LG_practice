@@ -1,0 +1,73 @@
+#!/bin/bash
+# postinst script for spatium-mock-speech
+
+set -e
+
+# summary of how this script can be called:
+#        * <postinst> `configure' <most-recently-configured-version>
+#        * <old-postinst> `abort-upgrade' <new version>
+#        * <conflictor's-postinst> `abort-remove' `in-favour' <package>
+#          <new-version>
+#        * <postinst> `abort-remove'
+#        * <deconfigured's-postinst> `abort-deconfigure' `in-favour'
+#          <failed-install-package> <version> `removing'
+#          <conflicting-package> <version>
+# for details, see http://www.debian.org/doc/debian-policy/ or
+# the debian-policy package
+
+case "$1" in
+    configure)
+
+        # we don't want to start the daemon as root
+        if ! getent group spatium >/dev/null; then
+            groupadd spatium
+        fi
+        if ! getent passwd spatium-mock-speech >/dev/null; then
+            useradd -r -g spatium --shell /bin/bash --no-create-home -d /usr/share/spatium/mock-speech spatium-mock-speech
+        fi
+        if ! groups spatium-mock-speech | grep '\bspatium\b' >/dev/null; then
+            usermod -g spatium spatium-mock-speech
+        fi
+
+        # fix config directory permissions
+        if ! dpkg-statoverride --list /etc/spatium/mock-speech >/dev/null; then
+            chown -R spatium-mock-speech:spatium /etc/spatium/mock-speech
+            chmod 750 /etc/spatium/mock-speech
+        fi
+
+        # fix log directory permissions
+        if ! dpkg-statoverride --list /var/log/spatium >/dev/null; then
+            chgrp -R spatium /var/log/spatium
+            chmod 770 /var/log/spatium
+        fi
+        ls /var/log/spatium/spatium-mock-speech* 1>/dev/null 2>&1 && chown -f -R spatium-mock-speech:spatium /var/log/spatium/spatium-mock-speech*
+        ls /var/log/spatium/spatium-mock-speech* 1>/dev/null 2>&1 && chmod -f -R 640 /var/log/spatium/spatium-mock-speech*
+
+        # ensure spatium-mock-speech is not running - it will be started at the end
+        if invoke-rc.d spatium-mock-speech status >/dev/null 2>&1; then
+            invoke-rc.d spatium-mock-speech stop || true
+        fi
+    ;;
+
+    abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+    *)
+        echo "postinst called with unknown argument \`$1'" >&2
+        exit 1
+    ;;
+esac
+
+if [ "$1" = "configure" ] || [ "$1" = "abort-upgrade" ] || [ "$1" = "abort-deconfigure" ] || [ "$1" = "abort-remove" ] ; then
+    if [ -x "/etc/init.d/spatium-mock-speech" ]; then
+        update-rc.d spatium-mock-speech defaults >/dev/null
+        if [ -n "$2" ]; then
+            _dh_action=restart
+        else
+            _dh_action=start
+        fi
+        invoke-rc.d --skip-systemd-native spatium-mock-speech $_dh_action || exit 1
+    fi
+fi
+
+exit 0

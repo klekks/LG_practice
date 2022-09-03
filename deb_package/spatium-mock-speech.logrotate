@@ -1,0 +1,10 @@
+/var/log/spatium/spatium-mock-speech.log {
+  daily
+  missingok
+  rotate 7
+  compress
+  delaycompress
+  notifempty
+  copytruncate
+  su spatium-mock-speech spatium
+}

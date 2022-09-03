@@ -1,0 +1,4 @@
+Release/
+Debug/
+Run/
+cmake/debPackageConfig.cmake
